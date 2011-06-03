@@ -1,4 +1,8 @@
 #!/usr/bin/env php
 <?php
+//var_dump(get_include_path());
 set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__ . '/lib/doctrine-orm');
+
+//	get_include_path() . ':' .
+//var_dump(get_include_path());
 include('lib/doctrine-orm/bin/doctrine.php');

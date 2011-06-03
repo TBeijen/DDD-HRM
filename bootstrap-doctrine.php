@@ -11,21 +11,24 @@ $classLoader = new \Doctrine\Common\ClassLoader('Symfony', __DIR__ . '/lib/doctr
 $classLoader->register();
 $classLoader = new \Doctrine\Common\ClassLoader('Domain', __DIR__);
 $classLoader->register();
+$classLoader = new \Doctrine\Common\ClassLoader('Test', __DIR__);
+$classLoader->register();
 
 // configure doctrine
 $cacheImpl = new \Doctrine\Common\Cache\ArrayCache;
 $config = new Doctrine\ORM\Configuration;
 $driverImpl = $config->newDefaultAnnotationDriver($domainRoot . '/Entity');
-$config->setProxyDir($domainRoot  . '/Entity/Proxy');
-$config->setProxyNamespace('Domain\Entity\Proxy');
+$config->setProxyDir($domainRoot  . '/Proxy');
+$config->setProxyNamespace('Domain\Proxy');
 $config->setMetadataDriverImpl($driverImpl);
 $config->setMetadataCacheImpl($cacheImpl);
 $config->setQueryCacheImpl($cacheImpl);
 $config->setAutoGenerateProxyClasses(true);
 
 $connectionOptions = array(
-    'driver' => 'pdo_sqlite',
-    'path' => ':memory:'
+    'dbname' => 'ddd_hrm',
+    'user' => 'ddd_hrm',
+    'password' => 'ddd_hrm',
+    'host' => 'localhost',
+    'driver' => 'pdo_mysql',
 );
-
-$em = \Doctrine\ORM\EntityManager::create($connectionOptions, $config);

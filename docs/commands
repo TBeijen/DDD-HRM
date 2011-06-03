@@ -1,0 +1,10 @@
+# Generate/update getters/setters in entity classes
+./doctrine orm:generate-entities ./
+
+# Generate/update proxy classes
+./doctrine orm:generate-proxies
+
+# Generate repositories
+./doctrine orm:generate-repositories ./
+
+
