@@ -5,6 +5,8 @@ namespace Domain\Entity;
 /**
  * @Entity(repositoryClass="Domain\Repository\TimeSheetRepository")
  */
+use Doctrine\Common\Collections\ArrayCollection;
+
 class TimeSheet
 {
     /**
@@ -18,7 +20,13 @@ class TimeSheet
 	 * @OneToOne(targetEntity="User")
  	 */
     private $registrant;
-
+    
+    /**
+     * @OneToMany(targetEntity="Domain\Entity\TimeSheetStatusChange", mappedBy="timeSheet", cascade={"persist", "remove"}, orphanRemoval=true)
+     * @OrderBy({"dateApplied ASC, id ASC"})
+     */
+    private $statusChanges;
+    
     /**
      * Constructor requiring a registrant user instance
      * 
@@ -26,7 +34,10 @@ class TimeSheet
      */
     public function __construct(User $registrant)
     {
-    	$this->registrant = $registrant;	
+    	$this->registrant = $registrant;
+    	
+    	$this->statusChanges = new ArrayCollection();
+    	$this->addStatusChange(new \Domain\Entity\TimeSheetStatusChange('open'));
     }
     
     /**
@@ -48,4 +59,24 @@ class TimeSheet
     {
         return $this->registrant;
     }    
+
+    /**
+     * Adds a new statusChange
+     * 
+     * @param \Domain\Entity\TimeSheetStatusChange $statusChange
+     */
+    public function addStatusChange(\Domain\Entity\TimeSheetStatusChange $statusChange)
+    {
+    	$this->statusChanges[] = $statusChange;
+    }
+    
+    /**
+     * Get statusChanges
+     *
+     * @return Doctrine\Common\Collections\Collection $statusChanges
+     */
+    public function getStatusChanges()
+    {
+        return $this->statusChanges;
+    }
 }

@@ -52,6 +52,8 @@ abstract class BaseTestCase extends \PHPUnit_Framework_TestCase
         $tool = new SchemaTool($this->em);
         $classes = array(
             $this->em->getClassMetadata('Domain\Entity\TimeSheet'),
+            $this->em->getClassMetadata('Domain\Entity\TimeSheetStatusChange'),
+            $this->em->getClassMetadata('Domain\Entity\User'),
         );
         $tool->createSchema($classes);
     }

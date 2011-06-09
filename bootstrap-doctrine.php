@@ -14,6 +14,8 @@ $classLoader->register();
 $classLoader = new \Doctrine\Common\ClassLoader('Test', __DIR__);
 $classLoader->register();
 
+Doctrine\DBAL\Types\Type::addType('timeSheetStatusType', 'Domain\Type\TimeSheetStatusType');
+
 // configure doctrine
 $cacheImpl = new \Doctrine\Common\Cache\ArrayCache;
 $config = new Doctrine\ORM\Configuration;
