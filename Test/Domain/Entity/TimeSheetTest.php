@@ -4,6 +4,7 @@ namespace Test\Domain\Entity;
 use Test\BaseTestCase;
 use Domain\Entity\User;
 use Domain\Entity\TimeSheet;
+use Domain\Entity\TimeSheetStatusChange;
 
 class TimeSheetTest extends BaseTestCase
 {
@@ -71,7 +72,7 @@ class TimeSheetTest extends BaseTestCase
 	/**
 	 * A new TimeSheet can be persisted (provided the user has already been persisted)
 	 */
-	public function testNewTimeSHeetCanBePersisted()
+	public function testNewTimeSheetCanBePersisted()
 	{
 		$user = new User('some@email.com');
 		$timeSheet = new TimeSheet($user);
@@ -79,5 +80,27 @@ class TimeSheetTest extends BaseTestCase
 		$this->em->persist($user);
 		$this->em->persist($timeSheet);
 		$this->em->flush();
+		
+		$this->assertEquals(1, $timeSheet->getId());
+	}
+
+	/**
+	 * Persisting a timesheet should propagate to the statusChanges contained
+	 */
+	public function testPersistShouldPropagateToStatusChanges()
+	{
+		$user = new User('some@email.com');
+		$timeSheet = new TimeSheet($user);
+		$timeSheet->addStatusChange(new TimeSheetStatusChange('submitted'));
+		
+		$this->em->persist($user);
+		$this->em->persist($timeSheet);
+		$this->em->flush();
+		
+		// clear and reload
+		$this->em->clear();
+		$reloadedTimeSheet = $this->em->find('Domain\Entity\TimeSheet', $timeSheet->getId());
+
+		$this->assertEquals(2, count($reloadedTimeSheet->getStatusChanges()));		
 	}
 }

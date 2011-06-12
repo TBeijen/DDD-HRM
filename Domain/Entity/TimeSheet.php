@@ -22,8 +22,8 @@ class TimeSheet
     private $registrant;
     
     /**
-     * @OneToMany(targetEntity="Domain\Entity\TimeSheetStatusChange", mappedBy="timeSheet", cascade={"persist", "remove"}, orphanRemoval=true)
-     * @OrderBy({"dateApplied ASC, id ASC"})
+     * @OneToMany(targetEntity="Domain\Entity\TimeSheetStatusChange", mappedBy="timeSheet", cascade={"persist"}, orphanRemoval=true)
+     * @OrderBy({"dateApplied" = "ASC", "id" = "ASC"})
      */
     private $statusChanges;
     
