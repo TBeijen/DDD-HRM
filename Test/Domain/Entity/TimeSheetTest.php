@@ -2,6 +2,7 @@
 namespace Test\Domain\Entity;
 
 use Test\BaseTestCase;
+use Domain\Entity\User;
 use Domain\Entity\TimeSheet;
 
 class TimeSheetTest extends BaseTestCase
@@ -16,6 +17,8 @@ class TimeSheetTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
+		parent::setUp();
+		
 		// get mock without calling constructor to reduce depency to constructor args
 		$this->mockUser = $this->getMock('Domain\Entity\User', array(), array(), '', false); 
 	}
@@ -51,5 +54,30 @@ class TimeSheetTest extends BaseTestCase
 		
 		$this->assertEquals(1, count($statusChanges));
 		$this->assertEquals('open', $statusChanges[0]->getStatus());
+	}
+	
+	/**
+	 * A new timesheet should by default have a statuschange representing the
+	 * 'open' status, which should be returned by getCurrentStatusChange()
+	 */
+	public function testNewTimeSheetGetCurrentStatusChange()
+	{
+		$timeSheet = new TimeSheet($this->mockUser);
+		$currentStatusChange = $timeSheet->getCurrentStatusChange();
+		
+		$this->assertEquals('open', $currentStatusChange->getStatus());
+	}
+	
+	/**
+	 * A new TimeSheet can be persisted (provided the user has already been persisted)
+	 */
+	public function testNewTimeSHeetCanBePersisted()
+	{
+		$user = new User('some@email.com');
+		$timeSheet = new TimeSheet($user);
+
+		$this->em->persist($user);
+		$this->em->persist($timeSheet);
+		$this->em->flush();
 	}
 }

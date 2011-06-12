@@ -63,11 +63,14 @@ class TimeSheet
     /**
      * Adds a new statusChange
      * 
+     * @todo validate order of statusChanges
      * @param \Domain\Entity\TimeSheetStatusChange $statusChange
      */
     public function addStatusChange(\Domain\Entity\TimeSheetStatusChange $statusChange)
     {
     	$this->statusChanges[] = $statusChange;
+    	
+    	$statusChange->setTimeSheet($this);
     }
     
     /**
@@ -78,5 +81,15 @@ class TimeSheet
     public function getStatusChanges()
     {
         return $this->statusChanges;
+    }
+    
+    /**
+     * Returns the current, most recent, status change
+     * 
+     * @return Domain\Entity\TimeSheetStatusChange $statusChange
+     */
+    public function getCurrentStatusChange()
+    {
+    	return $this->statusChanges[(count($this->statusChanges) -1)];
     }
 }

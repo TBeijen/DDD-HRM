@@ -39,16 +39,16 @@ class DomainEntityTimeSheetStatusChangeProxy extends \Domain\Entity\TimeSheetSta
         return parent::getTimeSheet();
     }
 
+    public function setTimeSheet(\Domain\Entity\TimeSheet $timeSheet)
+    {
+        $this->_load();
+        return parent::setTimeSheet($timeSheet);
+    }
+
     public function getStatus()
     {
         $this->_load();
         return parent::getStatus();
-    }
-
-    public function setDateApplied($date)
-    {
-        $this->_load();
-        return parent::setDateApplied($date);
     }
 
     public function getDateApplied()

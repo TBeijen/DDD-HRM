@@ -2,6 +2,8 @@
 
 namespace Domain\Entity;
 
+use Domain\Type\TimeSheetStatusType;
+
 /**
  * @Entity(repositoryClass="Domain\Repository\TimeSheetStatusChangeRepository")
  */
@@ -17,6 +19,7 @@ class TimeSheetStatusChange
 
     /**
      * @ManyToOne(targetEntity="Domain\Entity\TimeSheet", inversedBy="statusChanges")
+     * @JoinColumn(name="timesheet_id", referencedColumnName="id", nullable=false)
      */
     private $timeSheet;
 
@@ -35,10 +38,18 @@ class TimeSheetStatusChange
      * 
      * @param TimeSheet $timeSheet
      */
-    public function __construct($status)
+    public function __construct($status, \DateTime $dateApplied = null)
     {
+    	if (!TimeSheetStatusType::isValid($status)) {
+    		throw new \InvalidArgumentException('Invalid status: ' . $status);
+    	}
     	$this->status = $status;
-    	$this->dateApplied = new \DateTime('now');
+    	
+    	if (!is_null($dateApplied)) {
+	    	$this->dateApplied = $dateApplied;
+    	} else {
+	    	$this->dateApplied = new \DateTime('now');
+    	}    	
     }
     
     /**
@@ -62,6 +73,23 @@ class TimeSheetStatusChange
     }
     
     /**
+     * Sets the timeSheet.
+     * 
+     * Purpose is to have the reference to the timeSheet set when adding a 
+     * new TimeSheetStatusChange to a TimeSheet. Therefore this method validates
+     * if the timeSheet has the this instance as the current statusChange.
+     * 
+     * @param TimeSheet $timeSheet
+     */
+    public function setTimeSheet(TimeSheet $timeSheet)
+    {
+    	if ($timeSheet->getCurrentStatusChange() !== $this) {
+    		throw new \InvalidArgumentException('Cannot set TimeSheet if not having current instance as currentStatusChange');
+    	}
+    	$this->timeSheet = $timeSheet;
+    }
+    
+    /**
      * Get status
      *
      * @return string $status
@@ -69,16 +97,6 @@ class TimeSheetStatusChange
     public function getStatus()
     {
 	    return $this->status;	
-    }
-
-    /**
-     * Set dateApplied
-     *
-     * @param date $dateApplied
-     */
-    public function setDateApplied($dateApplied)
-    {
-        $this->dateApplied = $dateApplied;
     }
 
     /**
