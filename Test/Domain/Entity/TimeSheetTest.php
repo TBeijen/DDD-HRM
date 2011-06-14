@@ -139,6 +139,19 @@ class TimeSheetTest extends BaseTestCase
 		$statusChange = new TimeSheetStatusChange($status);
 		$this->assertFalse($timeSheet->isValidNextStatusChange($statusChange));	
 	}
+
+	/**
+	 * isValidNextStatus and isValidNextStatusChange should return false for 
+	 * normally valid status changes that have dateApplied prior to last status
+	 * 
+	 * @dataProvider validStatusChangeProvider
+	 * @param string $status
+	 * @param array $prepare
+	 */
+	public function testIsValidNextStatusReturnsFalseForInvalidDate($status, $prepare)
+	{
+		$this->markTestIncomplete();
+	}
 	
 	/**
 	 * statusChanges should only be allowed in a specific order.
@@ -173,6 +186,19 @@ class TimeSheetTest extends BaseTestCase
 		$statusChange = new TimeSheetStatusChange($status);		
 		$this->setExpectedException('LogicException');
 		$timeSheet->addStatusChange($statusChange);
+	}
+	
+	/**
+	 * Adding an normally valid statusChange with date prior to last statusChange
+	 * date should throw an exception.
+	 * 
+	 * @dataProvider invalidStatusChangeProvider
+	 * @param string $status
+	 * @param array $prepare
+	 */
+	public function testAddingStatusChangesWithInvalidDateThrowsException($status, $prepare)
+	{
+		$this->markTestIncomplete();
 	}
 	
 	/**

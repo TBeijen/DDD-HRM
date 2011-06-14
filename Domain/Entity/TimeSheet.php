@@ -73,7 +73,7 @@ class TimeSheet
      */
     public function addStatusChange(TimeSheetStatusChange $statusChange)
     {
-		$validateResult = $this->validateNextStatus($statusChange->getStatus());    	
+		$validateResult = $this->isValidNextStatusChange($statusChange);    	
     	if (!$validateResult) {
     		throw new \LogicException('Unallowed status change to: ' . $statusChange->getStatus());
     	}
@@ -126,14 +126,18 @@ class TimeSheet
     
     /**
      * Validates if the given TimeSheetStatusChange is allowed considering 
-     * the last status change
+     * the last status change and
      * 
      * @param \Domain\Entity\TimeSheetStatusChange $statusChange
      * @return boolean
      */
     public function isValidNextStatusChange(TimeSheetStatusChange $statusChange)
     {
-		return $this->validateNextStatus($statusChange->getStatus());    	
+		$isValid = (
+			$this->validateNextStatus($statusChange->getStatus())
+			&& $this->validateNextStatusChangeDate($statusChange)
+		);
+		return $isValid;
     }
     
     /**
@@ -164,5 +168,24 @@ class TimeSheet
     	}
     	
     	return false;
+    }
+    
+    /**
+     * Validates if the date of the statusChange given is later than the date
+     * of the last statusChange present
+     */
+    protected function validateNextStatusChangeDate(TimeSheetStatusChange $statusChange)
+    {
+    	// if no statusChanges present yet any date is valid
+    	if (count($this->statusChanges) === 0) {
+    		return true;
+    	}
+    	
+    	$currentDate = $this->getLastStatusChange()->getDateApplied();
+    	$nextDate = $statusChange->getDateApplied();
+    	
+    	return true;
+    	// enable once tests finish
+		// return ($nextDate >= $currentDate);
     }
 }
