@@ -42,7 +42,7 @@ class TimeSheet
     	$this->registrant = $registrant;
     	
     	$this->statusChanges = new ArrayCollection();
-    	$this->addStatusChange(new \Domain\Entity\TimeSheetStatusChange('open'));
+    	$this->addStatusChange(new TimeSheetStatusChange('open'));
     }
     
     /**
@@ -71,8 +71,13 @@ class TimeSheet
      * @todo validate order of statusChanges
      * @param \Domain\Entity\TimeSheetStatusChange $statusChange
      */
-    public function addStatusChange(\Domain\Entity\TimeSheetStatusChange $statusChange)
+    public function addStatusChange(TimeSheetStatusChange $statusChange)
     {
+		$validateResult = $this->validateNextStatus($statusChange->getStatus());    	
+    	if (!$validateResult) {
+    		throw new \LogicException('Unallowed status change to: ' . $statusChange->getStatus());
+    	}
+    	
     	$this->statusChanges[] = $statusChange;
     	
     	$statusChange->setTimeSheet($this);
@@ -106,5 +111,58 @@ class TimeSheet
     public function getStatus()
     {
     	return $this->getLastStatusChange()->getStatus();
+    }
+    
+    /**
+     * Validates if a TimeSheetStatusChange's $status value would be allowed
+     * 
+     * @param string $status
+     * @return boolean
+     */
+    public function isValidNextStatus($status)
+    {
+		return $this->validateNextStatus($status);    	
+    }
+    
+    /**
+     * Validates if the given TimeSheetStatusChange is allowed considering 
+     * the last status change
+     * 
+     * @param \Domain\Entity\TimeSheetStatusChange $statusChange
+     * @return boolean
+     */
+    public function isValidNextStatusChange(TimeSheetStatusChange $statusChange)
+    {
+		return $this->validateNextStatus($statusChange->getStatus());    	
+    }
+    
+    /**
+     * Performs status change validation logic
+     * 
+     * @param string $statusChange
+     * @return boolean
+     */
+    protected function validateNextStatus($nextStatus)
+    {
+    	// make exception for initial adding of open status
+    	if ($nextStatus === 'open' && count($this->statusChanges) === 0) {
+    		return true;
+    	}
+    	
+    	// validate status changes map
+    	$allowedChangeMap = array(
+    		'open' => array('submitted'),
+    		'submitted' => array('approved', 'disapproved'),
+    		'approved' => array('final', 'disapproved'),
+    		'disapproved' => array('submitted', 'approved'),
+    		'final' => array(),
+    	);
+
+    	$currentStatus = $this->getStatus();
+    	if (in_array($nextStatus, $allowedChangeMap[$currentStatus], true)) {
+    		return true;
+    	}
+    	
+    	return false;
     }
 }

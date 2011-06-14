@@ -107,6 +107,40 @@ class TimeSheetTest extends BaseTestCase
 	}
 
 	/**
+	 * isValidNextStatus and isValidNextStatusChange should return true for 
+	 * valid status changes
+	 * 
+	 * @dataProvider validStatusChangeProvider
+	 * @param string $status
+	 * @param array $prepare
+	 */
+	public function testIsValidNextStatusReturnsTrueForValidStatusChange($status, $prepare)
+	{
+		$timeSheet = $this->getPreparedTimeSheet($prepare);
+		$this->assertTrue($timeSheet->isValidNextStatus($status));	
+
+		$statusChange = new TimeSheetStatusChange($status);
+		$this->assertTrue($timeSheet->isValidNextStatusChange($statusChange));	
+	}
+	
+	/**
+	 * isValidNextStatus and isValidNextStatusChange should return false for 
+	 * invalid status changes
+	 * 
+	 * @dataProvider invalidStatusChangeProvider
+	 * @param string $status
+	 * @param array $prepare
+	 */
+	public function testIsValidNextStatusReturnsFalseForInvalidStatusChange($status, $prepare)
+	{
+		$timeSheet = $this->getPreparedTimeSheet($prepare);
+		$this->assertFalse($timeSheet->isValidNextStatus($status));	
+
+		$statusChange = new TimeSheetStatusChange($status);
+		$this->assertFalse($timeSheet->isValidNextStatusChange($statusChange));	
+	}
+	
+	/**
 	 * statusChanges should only be allowed in a specific order.
 	 * 
 	 * @dataProvider validStatusChangeProvider
@@ -115,14 +149,7 @@ class TimeSheetTest extends BaseTestCase
 	 */
 	public function testAddingValidStatusChangeSucceeds($status, $prepare)
 	{
-		$user = new User('some@email.com');
-		$timeSheet = new TimeSheet($user);
-		
-		// add prepare statusChanges to construct test state
-		foreach($prepare as $prepareStatus) {
-			$prepareStatusChange = new TimeSheetStatusChange($prepareStatus);
-			$timeSheet->addStatusChange($prepareStatusChange);
-		}
+		$timeSheet = $this->getPreparedTimeSheet($prepare);
 		
 		// add the tested statusChange
 		$statusChange = new TimeSheetStatusChange($status);
@@ -140,14 +167,7 @@ class TimeSheetTest extends BaseTestCase
 	 */
 	public function testAddingInvalidStatusChangeThrowsException($status, $prepare)
 	{
-		$user = new User('some@email.com');
-		$timeSheet = new TimeSheet($user);
-		
-		// add prepare statusChanges to construct test state
-		foreach($prepare as $prepareStatus) {
-			$prepareStatusChange = new TimeSheetStatusChange($prepareStatus);
-			$timeSheet->addStatusChange($prepareStatusChange);
-		}
+		$timeSheet = $this->getPreparedTimeSheet($prepare);
 		
 		// add the tested statusChange
 		$statusChange = new TimeSheetStatusChange($status);		
@@ -236,5 +256,25 @@ class TimeSheetTest extends BaseTestCase
 			array('disapproved', array('submitted', 'approved', 'final')),
 			array('final', array('submitted', 'approved', 'final')),
 		);
+	}
+	
+	/**
+	 * Adds statusChanges as contained in $prepare and returns TimeSheet
+	 * 
+	 * @param array $prepare
+	 * @return TimeSheet
+	 */
+	protected function getPreparedTimeSheet($prepare)
+	{
+		$user = new User('some@email.com');
+		$timeSheet = new TimeSheet($user);
+		
+		// add prepare statusChanges to construct test state
+		foreach($prepare as $prepareStatus) {
+			$prepareStatusChange = new TimeSheetStatusChange($prepareStatus);
+			$timeSheet->addStatusChange($prepareStatusChange);
+		}
+		
+		return $timeSheet;
 	}
 }
