@@ -107,6 +107,55 @@ class TimeSheetTest extends BaseTestCase
 	}
 
 	/**
+	 * statusChanges should only be allowed in a specific order.
+	 * 
+	 * @dataProvider validStatusChangeProvider
+	 * @param string $status
+	 * @param array $prepare
+	 */
+	public function testAddingValidStatusChangeSucceeds($status, $prepare)
+	{
+		$user = new User('some@email.com');
+		$timeSheet = new TimeSheet($user);
+		
+		// add prepare statusChanges to construct test state
+		foreach($prepare as $prepareStatus) {
+			$prepareStatusChange = new TimeSheetStatusChange($prepareStatus);
+			$timeSheet->addStatusChange($prepareStatusChange);
+		}
+		
+		// add the tested statusChange
+		$statusChange = new TimeSheetStatusChange($status);
+		$timeSheet->addStatusChange($statusChange);
+		
+		$this->assertEquals($status, $timeSheet->getStatus());
+	}
+	
+	/**
+	 * Adding an invalid statusChange should throw an exception.
+	 * 
+	 * @dataProvider invalidStatusChangeProvider
+	 * @param string $status
+	 * @param array $prepare
+	 */
+	public function testAddingInvalidStatusChangeThrowsException($status, $prepare)
+	{
+		$user = new User('some@email.com');
+		$timeSheet = new TimeSheet($user);
+		
+		// add prepare statusChanges to construct test state
+		foreach($prepare as $prepareStatus) {
+			$prepareStatusChange = new TimeSheetStatusChange($prepareStatus);
+			$timeSheet->addStatusChange($prepareStatusChange);
+		}
+		
+		// add the tested statusChange
+		$statusChange = new TimeSheetStatusChange($status);		
+		$this->setExpectedException('LogicException');
+		$timeSheet->addStatusChange($statusChange);
+	}
+	
+	/**
 	 * Persisting a timesheet should propagate to the statusChanges contained.
 	 */
 	public function testPersistShouldPropagateToStatusChanges()
@@ -127,5 +176,65 @@ class TimeSheetTest extends BaseTestCase
 		// test properties of reloaded TimeSheet
 		$this->assertEquals(2, count($reloadedTimeSheet->getStatusChanges()));		
 		$this->assertEquals('submitted', $reloadedTimeSheet->getStatus());		
+	}
+	
+	/**
+	 * Provides statuses and sequences to construct a state where 
+	 * that allows adding the new statusChange
+	 */
+	public static function validStatusChangeProvider()
+	{
+		return array(
+			// allowed status changes given status open		
+			array('submitted', array()),
+			
+			// allowed status changes given status submitted
+			array('approved', array('submitted')),
+			array('disapproved', array('submitted')),
+			
+			// allowed status changes given status approved
+			array('disapproved', array('submitted', 'approved')),
+			array('final', array('submitted', 'approved')),
+			
+			// allowed status changes given status disapproved
+			array('submitted', array('submitted', 'disapproved')),
+			array('approved', array('submitted', 'disapproved')),
+		);
+	}
+
+	/**
+	 * Provides statuses and sequences to construct a state where 
+	 * disallowed statusChanges can be tested
+	 */
+	public static function invalidStatusChangeProvider()
+	{
+		return array(
+			// disallowed status changes given status open
+			array('open', array()),
+			array('approved', array()),
+			array('disapproved', array()),
+			array('final', array()),
+			
+			// disallowed status changes given status submitted
+			array('open', array('submitted')),
+			array('final', array('submitted')),
+			
+			// disallowed status changes given status approved
+			array('open', array('submitted', 'approved')),
+			array('submitted', array('submitted', 'approved')),
+			array('approved', array('submitted', 'approved')),
+			
+			// disallowed status changes given status disapproved
+			array('open', array('submitted', 'disapproved')),
+			array('final', array('submitted', 'disapproved')),
+			array('disapproved', array('submitted', 'disapproved')),
+						
+			// disallowed status changes given status final
+			array('open', array('submitted', 'approved', 'final')),
+			array('submitted', array('submitted', 'approved', 'final')),
+			array('approved', array('submitted', 'approved', 'final')),
+			array('disapproved', array('submitted', 'approved', 'final')),
+			array('final', array('submitted', 'approved', 'final')),
+		);
 	}
 }
