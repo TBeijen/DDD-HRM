@@ -3,6 +3,8 @@
 namespace Domain\Entity;
 
 /**
+ * Represents a User in the domain.
+ * 
  * @Entity(repositoryClass="Domain\Repository\UserRepository")
  */
 class User

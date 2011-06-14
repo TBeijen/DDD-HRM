@@ -32,6 +32,18 @@ class TimeSheetStatusChangeTest extends BaseTestCase
 	}
 	
 	/**
+	 * getStatus should return the status the TimeSheetStatusChange is created with
+	 * 
+	 * @dataProvider validStatusProvider
+	 */
+	public function testGetStatus($status)
+	{
+		$timeSheetStatusChange = new TimeSheetStatusChange($status);
+
+		$this->assertEquals($status, $timeSheetStatusChange->getStatus());
+	}
+	
+	/**
 	 * A new TimeSheetStatusChange instance should by default have a dateApplied
 	 */
 	public function testNewInstanceHasDateApplied()
@@ -44,14 +56,14 @@ class TimeSheetStatusChangeTest extends BaseTestCase
 		
 	/**
 	 * It should be possible to set a TimeSheet if the TimeSheet
-	 * has the timeSheetStatusChange as it's current status change.
+	 * has the timeSheetStatusChange as it's last status change.
 	 */
-	public function testSetTimeSheetIfBeingCurrentStatusChange()
+	public function testSetTimeSheetIfBeingLastStatusChange()
 	{
 		$user = new User('some@email.com');
 		$timeSheet = new TimeSheet($user);
 		
-		$timeSheetStatusChange = $timeSheet->getCurrentStatusChange();
+		$timeSheetStatusChange = $timeSheet->getLastStatusChange();
 		$timeSheetStatusChange->setTimeSheet($timeSheet);
 		
 		$this->assertSame($timeSheet, $timeSheetStatusChange->getTimeSheet());

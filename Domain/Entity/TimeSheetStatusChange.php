@@ -77,13 +77,13 @@ class TimeSheetStatusChange
      * 
      * Purpose is to have the reference to the timeSheet set when adding a 
      * new TimeSheetStatusChange to a TimeSheet. Therefore this method validates
-     * if the timeSheet has the this instance as the current statusChange.
+     * if the timeSheet has the this instance as the last statusChange.
      * 
      * @param TimeSheet $timeSheet
      */
     public function setTimeSheet(TimeSheet $timeSheet)
     {
-    	if ($timeSheet->getCurrentStatusChange() !== $this) {
+    	if ($timeSheet->getLastStatusChange() !== $this) {
     		throw new \InvalidArgumentException('Cannot set TimeSheet if not having current instance as currentStatusChange');
     	}
     	$this->timeSheet = $timeSheet;

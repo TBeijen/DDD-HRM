@@ -51,10 +51,16 @@ class DomainEntityTimeSheetProxy extends \Domain\Entity\TimeSheet implements \Do
         return parent::getStatusChanges();
     }
 
-    public function getCurrentStatusChange()
+    public function getLastStatusChange()
     {
         $this->_load();
-        return parent::getCurrentStatusChange();
+        return parent::getLastStatusChange();
+    }
+
+    public function getStatus()
+    {
+        $this->_load();
+        return parent::getStatus();
     }
 
 

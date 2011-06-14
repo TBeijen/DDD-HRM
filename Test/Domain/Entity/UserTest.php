@@ -22,5 +22,44 @@ class UserTest extends BaseTestCase
 	{
 		$user = new User('blackhole@universe.com');
 		$this->assertEquals('blackhole@universe.com', $user->getEmail());
-	}	
+	}
+	
+	/**
+	 * setEmail() should set property which will be returned by getEmail()
+	 */
+	public function testSetEmail()
+	{
+		$user = new User('blackhole@universe.com');
+		$user->setEmail('another@email.com');
+		$this->assertEquals('another@email.com', $user->getEmail());
+	}
+	
+	/**
+	 * Persising a User should succeed and set the id property
+	 */
+	public function testUserCanBePersisted()
+	{
+		$user = new User('blackhole@universe.com');
+		
+		$this->em->persist($user);
+		$this->em->flush();
+		
+		$this->assertEquals(1, $user->getId());
+	}
+	
+	/**
+	 * No two Users can be persisted having the same e-mail address.
+	 */
+	public function testUserEmailShouldBeUnique()
+	{
+		$user1 = new User('blackhole@universe.com');
+		$user2 = new User('blackhole@universe.com');
+		
+		$this->em->persist($user1);
+		$this->em->persist($user2);
+		
+		// Catch generic exception as storage engine cannot be assumed
+		$this->setExpectedException('Exception');
+		$this->em->flush();
+	}
 }

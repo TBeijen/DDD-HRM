@@ -36,14 +36,22 @@ class TimeSheetTest extends BaseTestCase
 	/**
 	 * getRegistrant should return reference to same object as provided to constructor
 	 */
-	public function testGetRegistrantReturnsConstructorArgument()
+	public function testGetRegistrant()
 	{
 		$timeSheet = new TimeSheet($this->mockUser);
-		$returnedUser = $timeSheet->getRegistrant();
-
-		$this->assertSame($this->mockUser, $returnedUser);
+		$this->assertSame($this->mockUser, $timeSheet->getRegistrant());
 	}
-	
+
+	/**
+	 * getStatus should return the status property of the most recent statusChange
+	 */
+	public function testGetStatus()
+	{
+		$timeSheet = new TimeSheet($this->mockUser);
+		
+		$this->assertEquals('open', $timeSheet->getStatus());
+	}
+
 	/**
 	 * A new timesheet should by default have one statuschange representing the
 	 * 'open' status
@@ -59,14 +67,14 @@ class TimeSheetTest extends BaseTestCase
 	
 	/**
 	 * A new timesheet should by default have a statuschange representing the
-	 * 'open' status, which should be returned by getCurrentStatusChange()
+	 * 'open' status, which should be returned by getLastStatusChange()
 	 */
-	public function testNewTimeSheetGetCurrentStatusChange()
+	public function testNewTimeSheetGetLastStatusChange()
 	{
 		$timeSheet = new TimeSheet($this->mockUser);
-		$currentStatusChange = $timeSheet->getCurrentStatusChange();
+		$lastStatusChange = $timeSheet->getLastStatusChange();
 		
-		$this->assertEquals('open', $currentStatusChange->getStatus());
+		$this->assertEquals('open', $lastStatusChange->getStatus());
 	}
 	
 	/**
@@ -83,12 +91,27 @@ class TimeSheetTest extends BaseTestCase
 		
 		$this->assertEquals(1, $timeSheet->getId());
 	}
+	
+	/**
+	 * Adding a statusChange should return in an additional statusChange being 
+	 * returned by getStatusChanges()
+	 */
+	public function testAddStatusChange()
+	{
+		$user = new User('some@email.com');
+		$timeSheet = new TimeSheet($user);
+		$this->assertEquals(1, count($timeSheet->getStatusChanges()));
+		
+		$timeSheet->addStatusChange(new TimeSheetStatusChange('submitted'));
+		$this->assertEquals(2, count($timeSheet->getStatusChanges()));
+	}
 
 	/**
-	 * Persisting a timesheet should propagate to the statusChanges contained
+	 * Persisting a timesheet should propagate to the statusChanges contained.
 	 */
 	public function testPersistShouldPropagateToStatusChanges()
 	{
+		// create TimeSheet and add additional statusChange
 		$user = new User('some@email.com');
 		$timeSheet = new TimeSheet($user);
 		$timeSheet->addStatusChange(new TimeSheetStatusChange('submitted'));
@@ -101,6 +124,8 @@ class TimeSheetTest extends BaseTestCase
 		$this->em->clear();
 		$reloadedTimeSheet = $this->em->find('Domain\Entity\TimeSheet', $timeSheet->getId());
 
+		// test properties of reloaded TimeSheet
 		$this->assertEquals(2, count($reloadedTimeSheet->getStatusChanges()));		
+		$this->assertEquals('submitted', $reloadedTimeSheet->getStatus());		
 	}
 }
