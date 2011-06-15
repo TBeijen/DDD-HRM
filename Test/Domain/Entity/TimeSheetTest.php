@@ -150,7 +150,11 @@ class TimeSheetTest extends BaseTestCase
 	 */
 	public function testIsValidNextStatusReturnsFalseForInvalidDate($status, $prepare)
 	{
-		$this->markTestIncomplete();
+		$timeSheet = $this->getPreparedTimeSheet($prepare);
+		
+		// add the tested statusChange
+		$statusChange = new TimeSheetStatusChange($status, new \DateTime('-1 day'));
+		$this->assertFalse($timeSheet->isValidNextStatusChange($statusChange));	
 	}
 	
 	/**
@@ -192,13 +196,18 @@ class TimeSheetTest extends BaseTestCase
 	 * Adding an normally valid statusChange with date prior to last statusChange
 	 * date should throw an exception.
 	 * 
-	 * @dataProvider invalidStatusChangeProvider
+	 * @dataProvider validStatusChangeProvider
 	 * @param string $status
 	 * @param array $prepare
 	 */
 	public function testAddingStatusChangesWithInvalidDateThrowsException($status, $prepare)
 	{
-		$this->markTestIncomplete();
+		$timeSheet = $this->getPreparedTimeSheet($prepare);
+		
+		// add the tested statusChange
+		$statusChange = new TimeSheetStatusChange($status, new \DateTime('-1 day'));		
+		$this->setExpectedException('LogicException');
+		$timeSheet->addStatusChange($statusChange);	
 	}
 	
 	/**

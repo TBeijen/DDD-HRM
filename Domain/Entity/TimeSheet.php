@@ -121,7 +121,7 @@ class TimeSheet
      */
     public function isValidNextStatus($status)
     {
-		return $this->validateNextStatus($status);    	
+		return $this->_validateNextStatus($status);    	
     }
     
     /**
@@ -134,8 +134,8 @@ class TimeSheet
     public function isValidNextStatusChange(TimeSheetStatusChange $statusChange)
     {
 		$isValid = (
-			$this->validateNextStatus($statusChange->getStatus())
-			&& $this->validateNextStatusChangeDate($statusChange)
+			$this->_validateNextStatus($statusChange->getStatus())
+			&& $this->_validateNextStatusChangeDate($statusChange)
 		);
 		return $isValid;
     }
@@ -146,7 +146,7 @@ class TimeSheet
      * @param string $statusChange
      * @return boolean
      */
-    protected function validateNextStatus($nextStatus)
+    protected function _validateNextStatus($nextStatus)
     {
     	// make exception for initial adding of open status
     	if ($nextStatus === 'open' && count($this->statusChanges) === 0) {
@@ -174,7 +174,7 @@ class TimeSheet
      * Validates if the date of the statusChange given is later than the date
      * of the last statusChange present
      */
-    protected function validateNextStatusChangeDate(TimeSheetStatusChange $statusChange)
+    protected function _validateNextStatusChangeDate(TimeSheetStatusChange $statusChange)
     {
     	// if no statusChanges present yet any date is valid
     	if (count($this->statusChanges) === 0) {
@@ -184,8 +184,7 @@ class TimeSheet
     	$currentDate = $this->getLastStatusChange()->getDateApplied();
     	$nextDate = $statusChange->getDateApplied();
     	
-    	return true;
     	// enable once tests finish
-		// return ($nextDate >= $currentDate);
+		return ($nextDate >= $currentDate);
     }
 }
