@@ -32,15 +32,14 @@ class TimeSheetStatusChangeTest extends BaseTestCase
 	}
 	
 	/**
-	 * getStatus should return the status the TimeSheetStatusChange is created with
-	 * 
-	 * @dataProvider validStatusProvider
+	 * Constructor should accept and set a DateTime instance as $dateApplied argument 
 	 */
-	public function testGetStatus($status)
+	public function testConstructAcceptsDateTimeDateApplied()
 	{
-		$timeSheetStatusChange = new TimeSheetStatusChange($status);
-
-		$this->assertEquals($status, $timeSheetStatusChange->getStatus());
+		$dateApplied = new \DateTime('-1 day');
+		$timeSheetStatusChange = new TimeSheetStatusChange('open', $dateApplied);
+		
+		$this->assertSame($dateApplied, $timeSheetStatusChange->getDateApplied());
 	}
 	
 	/**
@@ -53,7 +52,19 @@ class TimeSheetStatusChangeTest extends BaseTestCase
 	
 		$this->assertInstanceOf('\DateTime', $dateApplied);
 	}
-		
+	
+	/**
+	 * getStatus should return the status the TimeSheetStatusChange is created with
+	 * 
+	 * @dataProvider validStatusProvider
+	 */
+	public function testGetStatus($status)
+	{
+		$timeSheetStatusChange = new TimeSheetStatusChange($status);
+
+		$this->assertEquals($status, $timeSheetStatusChange->getStatus());
+	}
+	
 	/**
 	 * It should be possible to set a TimeSheet if the TimeSheet
 	 * has the timeSheetStatusChange as it's last status change.
@@ -74,7 +85,7 @@ class TimeSheetStatusChangeTest extends BaseTestCase
 	 * it doesn't already contain the timeSheetStatusChange as the most recent 
 	 * timeSheetStatusChange
 	 */
-	public function testSetTimeSheetIfNotBeingCurrentStatusChangeThrowsException()
+	public function testSetTimeSheetIfNotBeingLastStatusChangeThrowsException()
 	{
 		$user = new User('some@email.com');
 		$timeSheet = new TimeSheet($user);
