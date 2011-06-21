@@ -1,0 +1,4 @@
+# DDD HRM phase 1
+# See: http://yuml.me/
+[User]+1->*[TimeSheet]
+[TimeSheet]++1->1..*[TimeSheetStatusChange]
